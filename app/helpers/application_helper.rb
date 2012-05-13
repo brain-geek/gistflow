@@ -39,39 +39,42 @@ module ApplicationHelper
   end
   
   def link_to_bookmark(post)
-    if bookmark = current_user.bookmark?(post)
-      link_to 'Unbookmark', [:account, bookmark],
-        remote: true, method: :delete, class: %w(button replaceable)
-    else
-      replaceable_form_for [:account, post.bookmarks.build] do |f|
-        concat(f.hidden_field :post_id)
-        concat(f.submit 'Bookmark', class: 'button')
-      end
-    end
+    link_to 'Loading...', '#', class: 'button bookmark'
+    # if bookmark = current_user.bookmark?(post)
+    #   link_to 'Unbookmark', [:account, bookmark],
+    #     remote: true, method: :delete, class: %w(button replaceable)
+    # else
+    #   replaceable_form_for [:account, post.bookmarks.build] do |f|
+    #     concat(f.hidden_field :post_id)
+    #     concat(f.submit 'Bookmark', class: 'button')
+    #   end
+    # end
   end
   
   def link_to_observe(post)
-    if observing = current_user.observe?(post)
-      link_to 'Unobserve', [:account, observing],
-        remote: true, method: :delete, class: %w(button replaceable)
-    else
-      replaceable_form_for [:account, post.observings.build] do |f|
-        concat(f.hidden_field :post_id)
-        concat(f.submit 'Observe', class: 'button')
-      end
-    end
+    link_to 'Loading...', '#', class: 'button observe'
+    # if observing = current_user.observe?(post)
+    #   link_to 'Unobserve', [:account, observing],
+    #     remote: true, method: :delete, class: %w(button replaceable)
+    # else
+    #   replaceable_form_for [:account, post.observings.build] do |f|
+    #     concat(f.hidden_field :post_id)
+    #     concat(f.submit 'Observe', class: 'button')
+    #   end
+    # end
   end
   
   def link_to_like(post)
-    if !user_signed_in? or current_user.like?(post) or current_user == post.user
-      title = post.likes_count == 1 ? '1 Like' : "#{post.likes_count} Likes"
-      link_to title, '#', rel: 'nofollow', class: %w(icon like button replaceable disabled)
-    else
-      replaceable_form_for [:account, post.likes.build] do |f|
-        concat(f.hidden_field :post_id)
-        concat(f.button "Like (#{post.likes_count})", class: %w(icon like button))
-      end
-    end
+    link_to 'Loading...', '#', class: 'button icon like'
+    # if !user_signed_in? or current_user.like?(post) or current_user == post.user
+    #   title = post.likes_count == 1 ? '1 Like' : "#{post.likes_count} Likes"
+    #   link_to title, '#', rel: 'nofollow', class: %w(icon like button replaceable disabled)
+    # else
+    #   replaceable_form_for [:account, post.likes.build] do |f|
+    #     concat(f.hidden_field :post_id)
+    #     concat(f.button "Like (#{post.likes_count})", class: %w(icon like button))
+    #   end
+    # end
   end
   
   def link_to_subscribe(tag)

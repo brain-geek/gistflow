@@ -2,9 +2,12 @@ class ApplicationController < ActionController::Base
   enable_authorization
   protect_from_forgery
   
+  attr_reader :sidebar_bookmarks, :sidebar_tags
+  
   rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
   rescue_from Exception, with: :notify_batman
-  helper_method :user_signed_in?, :current_user, :sidebar_tags
+  helper_method :user_signed_in?, :current_user, :sidebar_bookmarks,
+    :sidebar_tags
   
 protected
   
@@ -55,11 +58,19 @@ protected
     end
   end
   
-  def sidebar_tags
-    user_signed_in? ? current_user.tags : Tag.popular
-  end
-  
   def render_json_error(message)
     render :json => { :message => message }, :status => :error
+  end
+  
+  def sidebar_tags
+    @sidebar_tags ||= if user_signed_in?
+      current_user.tags
+    else
+      Tag.popular
+    end
+  end
+  
+  def sidebar_bookmarks
+    @sidebar_bookmarks ||= current_user.bookmarked_posts.includes(:user)
   end
 end
