@@ -16,6 +16,8 @@ gem 'cancan', :git => 'git://github.com/ryanb/cancan.git', :branch => '2.0'
 gem 'twitter'
 gem 'googl'
 gem 'sqlite3'
+gem 'capistrano'
+gem 'rvm-capistrano'
 
 group :production do
   gem 'god'
