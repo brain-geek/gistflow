@@ -17,7 +17,7 @@ class Post < ActiveRecord::Base
   
   validates :user, :title, presence: true
   validates :cuts_count, inclusion: { in: [0, 1] }
-  validates :preview, length: 3..500
+  validates :preview, length: { minimum: 3, maximum: 500, too_long: 'is too long. Use <cut> tag to separate preview and text.', too_short: 'is too short.' }
   validates :tags_size, numericality: { greater_than: 0 }
   validates :status, format: { with: %r{http://goo.gl/xxxxxx} }, 
     length: { maximum: 140 }, if: :status?
@@ -30,6 +30,24 @@ class Post < ActiveRecord::Base
   after_destroy :clear_cache
   
   scope :from_followed_users, lambda { |user| followed_by(user) }
+  
+  # ActiveRecord::Relation extends method
+  def self.to_json_hash(options = nil)
+    hash = {}
+    all.each do |post|
+      hash[post.id] = post.as_json(options)
+    end
+    hash.to_json
+  end
+  
+  # Max updated_at value for cache
+  def self.last_modified
+    all.map(&:updated_at).map(&:utc).max
+  end
+  
+  def cache_key(type)
+    "post:#{id}:#{type}"
+  end
   
   def link_name
     ln = title.blank? ? preview : title

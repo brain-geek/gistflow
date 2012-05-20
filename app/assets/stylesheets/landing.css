@@ -10,11 +10,8 @@
  *
  *= require_self
  *= require meyer_reset.css
- *= require css3buttons
- *= require twitter_pagination
- *= require twitter_alerts
  *= require base
  *= require layout
- *= require_tree .
+ *= require sections/landing
 */
 @import url(http://fonts.googleapis.com/css?family=PT+Sans+Narrow);

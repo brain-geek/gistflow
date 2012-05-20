@@ -8,24 +8,34 @@ Gistflow::Application.routes.draw do
   match '/flow'      => 'posts#flow'
   match '/all'       => 'posts#all'
   match '/following' => 'posts#following'
-  match '/observing' => 'posts#observing'
   match '/bookmarks' => 'posts#bookmarks'
   
   get :sitemap, to: 'sitemap#show', as: :xml
   
   namespace :account do
-    resources :followings, only: [:create, :destroy]
-    resources :bookmarks, only: [:create, :destroy]
-    resources :observings, only: [:create, :destroy]
-    resources :subscriptions, only: [:index, :create, :destroy]
-    resources :likes, only: :create
+    post   '/followings/:user_id' => 'followings#create',  :as => :follow
+    delete '/followings/:user_id' => 'followings#destroy'
+                                  
+    post   '/bookmarks/:post_id' => 'bookmarks#create', :as => :bookmark
+    delete '/bookmarks/:post_id' => 'bookmarks#destroy'
+                                  
+    post   '/observings/:post_id' => 'observings#create', :as => :observe
+    delete '/observings/:post_id' => 'observings#destroy'
+    
+    post   '/subscriptions/:tag_id' => 'subscriptions#create', :as => :subscribe
+    delete '/subscriptions/:tag_id' => 'subscriptions#destroy'
+    resources :subscriptions, only: :index
+    
+    post   '/likes/:post_id' => 'likes#create', :as => :like
+    delete '/likes/:post_id' => 'likes#destroy'
+    
     resources :notifications, only: :index
     resource :settings, :only => [:show, :update]
     resource :profile, :only => [:show, :update]
   end
   
   resources :posts do
-    resources :comments, only: :create, module: :posts do
+    resources :comments, only: [:create, :edit, :update, :destroy], module: :posts do
       collection do
         post :build
         post :preview
@@ -46,6 +56,8 @@ Gistflow::Application.routes.draw do
       resources :followings, only: :index, path: '/following'
     end
   end
+  
+  resource :landing, only: :show
   
   namespace :admin do
     resources :users, only: :index

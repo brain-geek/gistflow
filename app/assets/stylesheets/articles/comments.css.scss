@@ -7,6 +7,10 @@ section.comments {
     }
   }
   
+  h2 {
+    @include caption;
+  }
+  
   div.preview {
     background: whiteSmoke;
     padding: 5px;
@@ -46,6 +50,17 @@ article.comment {
     
     a {
       @include frame;
+    }
+  }
+  
+  .controls {
+    display: none;
+    float: right;
+    margin-top: -22px;
+    
+    li {
+      display: inline-block;
+      @include li-separator;
     }
   }
   

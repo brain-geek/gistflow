@@ -12,6 +12,7 @@ class Ability
     can :create, :users
     can :not_found, :errors
     can :index, [:'users/followings', :'users/followers']
+    can :show, :landings
     
     if user
       can(:access, :all) and return if user.admin?
@@ -23,12 +24,13 @@ class Ability
       can [:create, :destroy], [:'account/followings', :'account/observings', :'account/bookmarks']
       can :create, :'account/likes'
       can [:show, :update], [:'account/profiles', :'account/settings']
-      can [:all, :flow, :following, :observing], :posts
-      can [:new, :create, :memorize, :forgot, :like], :posts
+      can [:all, :flow, :following, :bookmarks], :posts
+      can [:new, :create], :posts
       cannot :create, :like, :user_id => user.id
       can :destroy, :sessions
       can :create, :comments
-      can [:preview, :build, :create], :'posts/comments'
+      can [:edit, :update, :destroy], :comments, :user_id => user.id
+      can [:preview, :build, :update, :create, :edit, :destroy], :'posts/comments'
       can :index, [:'account/gists', :'account/notifications']
       can [:index, :create, :destroy], :'account/subscriptions'
       can [:edit, :update, :destroy], :posts, :user_id => user.id

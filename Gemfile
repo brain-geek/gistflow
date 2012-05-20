@@ -18,6 +18,9 @@ gem 'googl'
 gem 'sqlite3'
 gem 'capistrano'
 gem 'rvm-capistrano'
+gem 'redis-rails'
+gem 'redis-rack'
+gem 'redis-rack-cache'
 
 group :production do
   gem 'god'

@@ -10,7 +10,6 @@ class User < ActiveRecord::Base
   has_many :subscriptions
   has_many :likes
   has_many :bookmarks
-  has_many :bookmarked_posts, through: :bookmarks, class_name: :'Post', source: :post
   has_many :tags, through: :subscriptions
   has_many :observings
   has_many :followings, foreign_key: :follower_id, dependent: :destroy
@@ -25,31 +24,83 @@ class User < ActiveRecord::Base
   attr_accessor :company, :github_page, :home_page, :email
   
   def intrested_posts
-    Post.joins(tags: { subscriptions: :user }).where(users: { id: id }).uniq
+    tag_ids = subscriptions.select(:tag_id).to_sql
+    Post.joins(:taggings).where("taggings.tag_id in(#{tag_ids})").uniq
   end
   
-  def bookmark?(post)
-    bookmarks.find { |bookmark| bookmark.post_id == post.id }
+  # Bookmarks
+  
+  def bookmark? post
+    bookmarks.where(post_id: post.id).exists?
   end
   
-  def observe?(post)
-    observings.find { |observing| observing.post_id == post.id }
+  def bookmark post
+    bookmarks.where(post_id: post.id).first_or_create!
   end
   
-  def follow?(user)
-    followings.find { |following| following.followed_user_id == user.id }
+  def unbookmark post
+    bookmarks.where(post_id: post.id).destroy_all
   end
   
-  def like?(post)
+  def bookmarked_posts
+    Post.joins(:bookmarks).where(bookmarks: { user_id: id })
+      .reorder('bookmarks.id desc')
+  end
+  
+  # Observings
+  
+  def observe? post
+    observings.where(post_id: post.id).exists?
+  end
+  
+  def observe post
+    observings.where(post_id: post.id).first_or_create!
+  end
+  
+  def unobserve post
+    observings.where(post_id: post.id).destroy_all
+  end
+  
+  # Followings
+  
+  def follow? user
+    followings.where(followed_user_id: user.id).exists?
+  end
+  
+  def follow user
+    followings.where(followed_user_id: user.id).first_or_create!
+  end
+  
+  def unfollow user
+    followings.where(followed_user_id: user.id).destroy_all
+  end
+  
+  def followed_posts
+    Post.followed_by(self)
+  end
+  
+  # Likes
+  
+  def like? post
     likes.find { |like| like.post_id == post.id }
   end
   
-  def subscribe?(tag)
-    subscriptions.find { |subscription| subscription.tag_id == tag.id }
+  def like post
+    likes.where(post_id: post.id).first_or_create!
   end
   
-  def observed
-    Post.joins(:observings).where(observings: { user_id: id })
+  # Subscriptions
+  
+  def subscribe? tag
+    subscriptions.where(tag_id: tag.id).exists?
+  end
+  
+  def subscribe tag
+    subscriptions.where(tag_id: tag.id).first_or_create!
+  end
+  
+  def unsubscribe tag
+    subscriptions.where(tag_id: tag.id).destroy_all
   end
   
   def to_param
@@ -105,10 +156,6 @@ class User < ActiveRecord::Base
       oauth_token: account_twitter.token,
       oauth_token_secret: account_twitter.secret
     )
-  end
-  
-  def followed_posts
-    Post.followed_by(self)
   end
   
 private

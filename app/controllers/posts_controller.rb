@@ -1,25 +1,24 @@
 class PostsController < ApplicationController
+  cache_sweeper :post_sweeper
+  
   before_filter :authenticate!, :except => [:show, :index]
   before_filter :choose_wall, :only => :index, :if => :user_signed_in?
   
   def index
     @posts = Post.includes(:user).page(params[:page])
-    render :index
+    if user_signed_in?
+      render :index
+    end
   end
   alias all index
   
   def flow
-    @posts = current_user.intrested_posts.includes(user: [:likes, :observings])
-      .page(params[:page])
+    @posts = current_user.intrested_posts.page(params[:page])
   end
   
   def following
     @posts = current_user.followed_posts.includes(user: [:likes, :observings]).
       page(params[:page])
-  end
-  
-  def observing
-    @posts = current_user.observed.page(params[:page])
   end
   
   def bookmarks
