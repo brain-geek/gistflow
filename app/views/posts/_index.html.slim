@@ -1,27 +1,26 @@
 - if user_signed_in?
   - content_for(:submenu) do
     = link_to('New Post', new_post_path, :class => 'button')
+
 - content_for(:menu) do
   li = link_to_unless_current 'Flow', flow_url, :class => 'flow_posts', :rel => :nofollow
   li = link_to_unless all_posts_page?, 'All', all_url, :class => 'all_posts', :rel => :nofollow
   li = link_to_unless_current 'Following', following_path, :class => 'followed_posts', :rel => :nofollow
+
 javascript:
   window.posts = #{posts.to_json_hash(only: [:id, :likes_count, :comments_count]).html_safe}
+
 - posts.each do |post|
   - cache post.cache_key(:preview) do
     article class="post group" rel="#{post_url(post)}" data-id="#{post.id}" data-author="#{post.user.username}"
       header
-        h1
-          = link_to(post.title, post) << ' '
-          span
-            | by 
-            = link_to post.user, post.user
+        h1 = post_title(post)
       div class="avatar"
         = link_to avatar_image(post.user, 26), post.user
       div class="preview markdown group"
-        = post.preview_cache
+        = preview(post)
       footer class="group actions"
-        = time_tag post.updated_at, post.updated_at.to_date.to_formatted_s(:long)
+        = timestamp(post)
         div class="button-groups"
           div class="button-group minor-group"
             = link_to_bookmark post

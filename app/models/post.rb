@@ -71,14 +71,9 @@ class Post < ActiveRecord::Base
     status.present?
   end
   
-  def preview_cache
-    (read_attribute(:preview_cache) || cache_preview).html_safe
-  end
-  
   def self.followed_by(user)
-    followed_user_ids = %(SELECT followed_user_id FROM followings
-                           WHERE follower_id = :user_id)
-    where("user_id IN (#{followed_user_ids})", { user_id: user })
+    user_ids = user.followings.select(:followed_user_id).to_sql
+    where "user_id IN (#{user_ids})"
   end
   
   def self.search(text)
@@ -90,18 +85,8 @@ class Post < ActiveRecord::Base
       content[CUT, 2] || I18n.translate(:default_cut)
     end
   end
-protected
   
-  def cache_preview
-    preview = Markdown.markdown(begin
-      raw = Replaceable.new(self.preview)
-      raw.replace_gists!.replace_tags!.replace_usernames!
-      raw.to_s
-    end)
-    
-    preview << %(<a href="/posts/#{id}">#{cut_text}</a>).html_safe if cut_text
-    write_attribute(:preview_cache, preview)
-  end
+protected
   
   def content_parts
     m = content.split(CUT, 2)
